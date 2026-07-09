@@ -155,6 +155,38 @@
       color: var(--success);
     }
 
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 14px;
+    }
+
+    .result-table th,
+    .result-table td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .result-table th {
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748b;
+      background: #eef6fb;
+    }
+
+    .confidence-pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(4, 120, 87, 0.1);
+      color: var(--success);
+      font-weight: 700;
+    }
+
     .muted {
       color: var(--muted);
       font-size: 0.92rem;
@@ -233,7 +265,25 @@
           return;
         }
 
-        resultBox.innerHTML = `<strong>Top recommendations:</strong><br>${data.recommended_products.map((item) => `• ${item}`).join('<br>')}`;
+        const rows = data.recommended_products.map((item) => `
+          <tr>
+            <td>${item.product_id}</td>
+            <td><span class="confidence-pill">${(item.confidence * 100).toFixed(1)}%</span></td>
+          </tr>
+        `).join('');
+
+        resultBox.innerHTML = `
+          <strong>Top recommendations:</strong>
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>Product ID</th>
+                <th>Confidence Score</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
       } catch (error) {
         resultBox.innerHTML = `<strong>Request failed:</strong> ${error.message}`;
       }
