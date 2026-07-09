@@ -1,0 +1,758 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nariman Productcard Recommender</title>
+  <style>
+    :root {
+      --white: #ffffff;
+      --accent: #0ea5e9;
+      --accent-strong: #0369a1;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #0b1220;
+    }
+
+    .hero {
+      position: relative;
+      height: 100dvh;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      background:
+        linear-gradient(135deg, rgba(11, 18, 32, 0.58), rgba(3, 105, 161, 0.34)),
+        url("{% static 'predictor/supermarket.jpg' %}") center/cover no-repeat;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(6, 10, 18, 0.48), rgba(6, 10, 18, 0.24));
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100% - 32px));
+      padding: clamp(32px, 7vw, 72px) 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 0 0 14px;
+      max-width: 12ch;
+      font-size: clamp(3.4rem, 7.5vw, 7rem);
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-subtitle {
+      margin: 0 0 22px;
+      max-width: 60ch;
+      font-size: clamp(1.05rem, 2vw, 1.32rem);
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    .hero-title-blue {
+      color: #0ea5e9;
+      text-shadow: 0 12px 28px rgba(14, 165, 233, 0.25);
+    }
+
+    .hero-title-green {
+      color: #34d399;
+      text-shadow: 0 12px 28px rgba(52, 211, 153, 0.2);
+    }
+
+    .hero-title-amber {
+      color: #ffffff;
+      text-shadow: 0 12px 28px rgba(255, 255, 255, 0.12);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+      justify-content: center;
+    }
+
+    .hero-actions a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+      padding: 14px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .hero-actions a:hover {
+      transform: translateY(-1px);
+    }
+
+    .overview {
+      padding: 88px 24px 96px;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 34%),
+        radial-gradient(circle at top right, rgba(52, 211, 153, 0.1), transparent 30%),
+        linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+      color: #0f172a;
+    }
+
+    .overview-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .section-kicker {
+      margin: 0 0 10px;
+      color: #0284c7;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(2.1rem, 4vw, 3.4rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #0f172a 0%, #0ea5e9 52%, #059669 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .section-copy {
+      margin: 18px 0 0;
+      max-width: 64ch;
+      color: rgba(15, 23, 42, 0.72);
+      font-size: 1.05rem;
+      line-height: 1.8;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 34px;
+    }
+
+    .step-card {
+      position: relative;
+      padding: 26px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .step-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.46), transparent 55%);
+      pointer-events: none;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      margin-bottom: 18px;
+      background: rgba(15, 23, 42, 0.06);
+      color: #0f172a;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .step-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      line-height: 1.2;
+      color: #0f172a;
+    }
+
+    .step-card p {
+      margin: 0;
+      color: rgba(15, 23, 42, 0.72);
+      line-height: 1.7;
+    }
+
+    .step-card.is-blue .step-number {
+      background: rgba(14, 165, 233, 0.12);
+      color: #0284c7;
+    }
+
+    .step-card.is-green .step-number {
+      background: rgba(52, 211, 153, 0.14);
+      color: #059669;
+    }
+
+    .step-card.is-white .step-number {
+      background: rgba(15, 23, 42, 0.08);
+      color: #0f172a;
+    }
+
+    .benefits {
+      padding: 0 24px 96px;
+      background: linear-gradient(180deg, #eef4fb 0%, #e8f0f8 100%);
+      color: #0f172a;
+    }
+
+    .benefits-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding-top: 4px;
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 18px;
+      margin-top: 28px;
+      align-items: stretch;
+    }
+
+    .benefits-panel {
+      position: relative;
+      padding: 30px;
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .benefits-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.1), transparent 38%);
+      pointer-events: none;
+    }
+
+    .benefits-panel.primary {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .benefits-panel.secondary {
+      display: grid;
+      gap: 16px;
+    }
+
+    .benefit-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(248, 250, 252, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .benefit-badge {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      background: rgba(14, 165, 233, 0.12);
+      color: #0284c7;
+    }
+
+    .benefit-item h3 {
+      margin: 0 0 6px;
+      font-size: 1.08rem;
+      line-height: 1.2;
+      color: #0f172a;
+    }
+
+    .benefit-item p {
+      margin: 0;
+      color: rgba(15, 23, 42, 0.72);
+      line-height: 1.7;
+    }
+
+    .benefit-highlight {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.25rem);
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+      max-width: 14ch;
+    }
+
+    .benefit-support {
+      margin: 0;
+      max-width: 56ch;
+      color: rgba(15, 23, 42, 0.72);
+      font-size: 1.02rem;
+      line-height: 1.8;
+    }
+
+    .benefit-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat-pill {
+      padding: 16px 14px;
+      border-radius: 18px;
+      background: rgba(248, 250, 252, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      text-align: center;
+    }
+
+    .stat-pill strong {
+      display: block;
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+      color: #0f172a;
+    }
+
+    .stat-pill span {
+      color: rgba(15, 23, 42, 0.72);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .step-card.mobile-slide {
+      opacity: 0;
+      transform: translateX(-48px);
+    }
+
+    .step-card.mobile-slide.is-visible {
+      animation: slideInFromLeft 0.65s ease forwards;
+    }
+
+    .step-card.mobile-slide.is-visible:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .step-card.mobile-slide.is-visible:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .step-card.mobile-slide.is-visible:nth-child(3) {
+      animation-delay: 0.24s;
+    }
+
+    .primary-cta {
+      color: var(--white);
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      box-shadow: 0 18px 40px rgba(14, 165, 233, 0.3);
+    }
+
+    .primary-cta.is-blue {
+      background: linear-gradient(135deg, #0ea5e9, #0369a1);
+      box-shadow: 0 18px 40px rgba(14, 165, 233, 0.3);
+    }
+
+    .primary-cta.is-green {
+      background: linear-gradient(135deg, #34d399, #059669);
+      box-shadow: 0 18px 40px rgba(52, 211, 153, 0.26);
+    }
+
+    .primary-cta.is-white {
+      background: linear-gradient(135deg, #ffffff, #e2e8f0);
+      color: #0f172a;
+      box-shadow: 0 18px 40px rgba(255, 255, 255, 0.16);
+    }
+
+    .secondary-cta {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+    }
+
+    .secondary-cta.is-blue {
+      border-color: rgba(14, 165, 233, 0.82);
+      box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.18);
+    }
+
+    .secondary-cta.is-green {
+      border-color: rgba(52, 211, 153, 0.82);
+      box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.16);
+    }
+
+    .secondary-cta.is-white {
+      border-color: rgba(255, 255, 255, 0.92);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+    }
+
+    .rotate-in {
+      animation: fadeInUp 0.35s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInFromLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-48px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (max-width: 920px) {
+      .hero-content {
+        width: min(920px, calc(100% - 28px));
+      }
+
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .benefits-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .benefit-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-actions a {
+        width: 100%;
+      }
+
+      .overview,
+      .benefits {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 72px;
+      }
+
+      .overview-inner,
+      .benefits-inner {
+        width: min(100%, calc(100% - 8px));
+      }
+
+      .section-title {
+        max-width: 100%;
+        font-size: clamp(1.7rem, 8vw, 2.35rem);
+      }
+
+      .section-copy {
+        font-size: 0.98rem;
+        line-height: 1.7;
+      }
+
+      .steps-grid {
+        gap: 14px;
+        margin-top: 24px;
+      }
+
+      .step-card {
+        padding: 20px;
+        border-radius: 20px;
+      }
+
+      .step-card h3 {
+        font-size: 1.08rem;
+      }
+
+      .step-card p {
+        font-size: 0.95rem;
+        line-height: 1.62;
+      }
+
+      .benefits-grid {
+        gap: 14px;
+        margin-top: 22px;
+      }
+
+      .benefits-panel {
+        padding: 20px;
+        border-radius: 22px;
+      }
+
+      .benefit-item {
+        padding: 14px;
+        gap: 12px;
+      }
+
+      .benefit-item h3 {
+        font-size: 1rem;
+      }
+
+      .benefit-item p,
+      .benefit-support,
+      .stat-pill span {
+        font-size: 0.93rem;
+        line-height: 1.6;
+      }
+
+      .benefit-highlight {
+        max-width: 100%;
+        font-size: clamp(1.2rem, 6vw, 1.6rem);
+      }
+
+      .benefit-stats {
+        gap: 10px;
+      }
+
+      .stat-pill {
+        padding: 14px 12px;
+      }
+
+      .step-card.mobile-slide {
+        opacity: 0;
+        transform: translateX(-48px);
+      }
+
+      .step-card.mobile-slide.is-visible {
+        animation: slideInFromLeft 0.65s ease forwards;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="hero">
+    <div class="hero-content">
+      <div class="eyebrow">Nariman Productcard Recommender</div>
+      <h1 id="hero-title" class="rotate-in">Nariman Productcard Recommender</h1>
+      <p id="hero-text" class="hero-subtitle rotate-in">Helping shops turn customer activity into smarter product suggestions.</p>
+
+      <div class="hero-actions">
+        <a id="hero-cta" class="primary-cta is-blue" href="/predict/">Open prediction page</a>
+        <a class="secondary-cta" href="/predict/">Try the recommender</a>
+      </div>
+    </div>
+  </main>
+
+  <section class="overview" aria-labelledby="how-it-works-title">
+    <div class="overview-inner">
+      <p class="section-kicker">How it works</p>
+      <h2 id="how-it-works-title" class="section-title">Three simple steps to better recommendations</h2>
+      <p class="section-copy">The flow is built to stay easy for shop owners: add customer details, let the model rank the best products, and use the results to guide the sale.</p>
+
+      <div class="steps-grid">
+        <article class="step-card is-blue">
+          <div class="step-number">1</div>
+          <h3>Enter the customer details</h3>
+          <p>Open the prediction page and fill in the shopper activity details that describe the current visit.</p>
+        </article>
+
+        <article class="step-card is-green">
+          <div class="step-number">2</div>
+          <h3>Let the model rank products</h3>
+          <p>The recommender compares the input with what it has learned and returns the strongest product matches first.</p>
+        </article>
+
+        <article class="step-card is-white">
+          <div class="step-number">3</div>
+          <h3>Use the result to guide sales</h3>
+          <p>Review the suggested products and use them to help the shop owner or sales team act faster.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="benefits" aria-labelledby="why-title">
+    <div class="benefits-inner">
+      <p class="section-kicker">Why this recommender</p>
+      <div class="benefits-grid">
+        <div class="benefits-panel primary">
+          <div>
+            <h2 id="why-title" class="section-title">Built to make product suggestions easier to trust</h2>
+            <p class="section-copy">The model is designed to give shop owners a simple answer they can use quickly, even when the customer history is limited.</p>
+          </div>
+
+          <p class="benefit-highlight">Clear recommendations for real shopping decisions.</p>
+          <p class="benefit-support">Instead of showing raw model output, the page explains the result in plain English so the user knows what to do next.</p>
+        </div>
+
+        <div class="benefits-panel secondary">
+          <div class="benefit-item">
+            <div class="benefit-badge">1</div>
+            <div>
+              <h3>Faster decisions</h3>
+              <p>Ranked products help the shop owner move from customer details to useful suggestions without guesswork.</p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-badge">2</div>
+            <div>
+              <h3>Simple cold-start support</h3>
+              <p>When there is not enough customer history, the app still shows popular products instead of leaving the user stuck.</p>
+            </div>
+          </div>
+
+          <div class="benefit-stats">
+            <div class="stat-pill">
+              <strong>Top matches</strong>
+              <span>Recommends the strongest product options first.</span>
+            </div>
+            <div class="stat-pill">
+              <strong>Easy to read</strong>
+              <span>Uses simple language that anyone can understand.</span>
+            </div>
+            <div class="stat-pill">
+              <strong>Ready to use</strong>
+              <span>Built for a real demo or deployment flow.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const heroTitle = document.getElementById('hero-title');
+    const heroText = document.getElementById('hero-text');
+    const heroCta = document.getElementById('hero-cta');
+    const secondaryCta = document.querySelector('.secondary-cta');
+    const stepCards = Array.from(document.querySelectorAll('.step-card'));
+    const overviewSection = document.querySelector('.overview');
+
+    const rotatingMessages = [
+      {
+        title: 'Nariman Productcard Recommender',
+        text: 'Turn customer activity into smart product suggestions in a clear and simple way.'
+        , className: 'hero-title-blue', ctaClass: 'is-blue'
+      },
+      {
+        title: 'Smart shopping starts here',
+        text: 'Helping every store guide customers toward products they are more likely to love.'
+        , className: 'hero-title-green', ctaClass: 'is-green'
+      },
+      {
+        title: 'Better recommendations, better sales',
+        text: 'A clean recommender built to make product discovery feel easier and more useful.'
+        , className: 'hero-title-amber', ctaClass: 'is-white'
+      }
+    ];
+
+    let rotatingIndex = 0;
+
+    function updateHeroMessage() {
+      rotatingIndex = (rotatingIndex + 1) % rotatingMessages.length;
+      const currentMessage = rotatingMessages[rotatingIndex];
+
+      heroTitle.classList.remove('rotate-in');
+      heroTitle.classList.remove('hero-title-blue', 'hero-title-green', 'hero-title-amber');
+      heroCta.classList.remove('is-blue', 'is-green', 'is-white');
+      secondaryCta.classList.remove('is-blue', 'is-green', 'is-white');
+      heroText.classList.remove('rotate-in');
+      void heroTitle.offsetWidth;
+      heroTitle.textContent = currentMessage.title;
+      heroText.textContent = currentMessage.text;
+      heroTitle.classList.add(currentMessage.className);
+      heroCta.classList.add(currentMessage.ctaClass);
+      secondaryCta.classList.add(currentMessage.ctaClass);
+      heroTitle.classList.add('rotate-in');
+      heroText.classList.add('rotate-in');
+    }
+
+    heroTitle.classList.add(rotatingMessages[0].className);
+    heroCta.classList.add(rotatingMessages[0].ctaClass);
+    secondaryCta.classList.add(rotatingMessages[0].ctaClass);
+
+    const mobileCards = window.matchMedia('(max-width: 640px)').matches ? stepCards : [];
+
+    if (mobileCards.length > 0) {
+      mobileCards.forEach((card) => card.classList.add('mobile-slide'));
+
+      const revealCards = () => {
+        mobileCards.forEach((card) => {
+          card.classList.remove('is-visible');
+        });
+
+        mobileCards.forEach((card, index) => {
+          window.setTimeout(() => {
+            card.classList.add('is-visible');
+          }, index * 140);
+        });
+      };
+
+      const hideCards = () => {
+        mobileCards.forEach((card) => {
+          card.classList.remove('is-visible');
+        });
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            revealCards();
+          } else {
+            hideCards();
+          }
+        });
+      }, {
+        threshold: 0.3,
+      });
+
+      observer.observe(overviewSection);
+    }
+
+    setInterval(updateHeroMessage, 3500);
+  </script>
+</body>
+</html>
