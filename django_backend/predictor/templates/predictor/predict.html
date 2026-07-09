@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Product Recommender</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #0f172a;
+      --panel: rgba(255, 255, 255, 0.92);
+      --panel-border: rgba(148, 163, 184, 0.22);
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #0ea5e9;
+      --accent-strong: #0369a1;
+      --success: #047857;
+      --shadow: 0 24px 80px rgba(15, 23, 42, 0.24);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.38), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.22), transparent 30%),
+        linear-gradient(135deg, #0f172a 0%, #111827 56%, #1e293b 100%);
+      color: var(--text);
+      padding: 32px 16px 48px;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      color: white;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 720px;
+      color: rgba(226, 232, 240, 0.88);
+      line-height: 1.6;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+    }
+
+    .card-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--accent-strong);
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    form {
+      padding: 28px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      font: inherit;
+      color: var(--text);
+      background: white;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+    }
+
+    .actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      padding: 14px 22px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #0284c7);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 16px 32px rgba(14, 165, 233, 0.26);
+    }
+
+    button:hover { filter: brightness(1.03); }
+
+    .result {
+      margin: 18px 28px 28px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #0f172a;
+      min-height: 62px;
+    }
+
+    .result strong {
+      color: var(--success);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <h1>Product Recommendation Demo</h1>
+      <p>Enter the engineered customer features, submit them to <code>/predict/</code>, and render the top model recommendations without reloading the page.</p>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 style="margin: 0 0 6px;">Prediction Input</h2>
+          <div class="muted">The backend validates all 15 fields before it loads the model and returns the top 5 products.</div>
+        </div>
+        <span class="badge">Django + joblib</span>
+      </div>
+
+      <form id="prediction-form">
+        <div class="grid">
+          <div class="field"><label for="total_events">Total Events</label><input id="total_events" name="total_events" type="number" step="any" value="10"></div>
+          <div class="field"><label for="unique_products">Unique Products</label><input id="unique_products" name="unique_products" type="number" step="any" value="5"></div>
+          <div class="field"><label for="avg_price">Average Price</label><input id="avg_price" name="avg_price" type="number" step="any" value="50"></div>
+          <div class="field"><label for="max_price">Max Price</label><input id="max_price" name="max_price" type="number" step="any" value="100"></div>
+          <div class="field"><label for="purchase_count">Purchase Count</label><input id="purchase_count" name="purchase_count" type="number" step="any" value="2"></div>
+          <div class="field"><label for="view_count">View Count</label><input id="view_count" name="view_count" type="number" step="any" value="8"></div>
+          <div class="field"><label for="cart_count">Cart Count</label><input id="cart_count" name="cart_count" type="number" step="any" value="1"></div>
+          <div class="field"><label for="electronics_pref">Electronics Pref</label><input id="electronics_pref" name="electronics_pref" type="number" step="any" value="1"></div>
+          <div class="field"><label for="unique_sessions">Unique Sessions</label><input id="unique_sessions" name="unique_sessions" type="number" step="any" value="3"></div>
+          <div class="field"><label for="price_range">Price Range</label><input id="price_range" name="price_range" type="number" step="any" value="50"></div>
+          <div class="field"><label for="purchase_ratio">Purchase Ratio</label><input id="purchase_ratio" name="purchase_ratio" type="number" step="any" value="0.2"></div>
+          <div class="field"><label for="cart_ratio">Cart Ratio</label><input id="cart_ratio" name="cart_ratio" type="number" step="any" value="0.1"></div>
+          <div class="field"><label for="view_ratio">View Ratio</label><input id="view_ratio" name="view_ratio" type="number" step="any" value="0.7"></div>
+          <div class="field"><label for="avg_price_log">Average Price Log</label><input id="avg_price_log" name="avg_price_log" type="number" step="any" value="3.9"></div>
+          <div class="field"><label for="is_active_shopper">Is Active Shopper</label><input id="is_active_shopper" name="is_active_shopper" type="number" step="any" value="1"></div>
+        </div>
+
+        <div class="actions">
+          <button type="submit">Generate Prediction</button>
+          <span class="muted">Results appear below instantly.</span>
+        </div>
+      </form>
+
+      <div class="result" id="result">No prediction yet.</div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('prediction-form');
+    const resultBox = document.getElementById('result');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      resultBox.textContent = 'Running prediction...';
+
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const response = await fetch('/predict/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const details = data.errors ? `\n${data.errors.join('\n')}` : '';
+          resultBox.innerHTML = `<strong>Validation failed:</strong> ${data.message}${details ? `<pre>${details}</pre>` : ''}`;
+          return;
+        }
+
+        resultBox.innerHTML = `<strong>Top recommendations:</strong><br>${data.recommended_products.map((item) => `• ${item}`).join('<br>')}`;
+      } catch (error) {
+        resultBox.innerHTML = `<strong>Request failed:</strong> ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
